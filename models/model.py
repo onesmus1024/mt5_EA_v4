@@ -2,7 +2,7 @@ import MetaTrader5 as mt5
 import tensorflow as tf
 from tensorflow import keras
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 from pandas.plotting import scatter_matrix
 import numpy as np
@@ -14,17 +14,15 @@ import time
 import os
 
 from mt5_actions.rates import get_rates
-from mt5_global.settings import symbol, timeframe
+from mt5_global.settings import symbol, timeframe,utc_from,timezone
 
 
 #tset time zone to UTC
-timezone = pytz.timezone("Etc/UTC")
-utc_from = datetime.datetime(2020, 1, 1, tzinfo=timezone)
 utc_to = datetime.datetime.now(tz=timezone)
 
 
 #get rates from mt5
-rates = get_rates(symbol,mt5.TIMEFRAME_M15, utc_from, utc_to)
+rates = get_rates(symbol,timeframe, utc_from, utc_to)
 
 # create DataFrame out of the obtained data
 rates_frame = pd.DataFrame(rates)
@@ -42,11 +40,11 @@ print(corretion_matrix['close'].sort_values(ascending=False))
 x=rates_frame[['open','high','low','tick_volume','spread','real_volume']]
 y=rates_frame['close']
 #data scaling
-scaler = StandardScaler()
+scaler = MinMaxScaler()
 scaler.fit(x)
 x_scaled = scaler.transform(x)
 x = pd.DataFrame(x_scaled, columns=['open','high','low','tick_volume','spread','real_volume'])
-x_train_rate,x_test_rate,y_train_rate,y_test_rates = train_test_split(x,y, test_size=0.2)
+x_train_rate,x_test_rate,y_train_rate,y_test_rates = train_test_split(x,y, test_size=0.2,shuffle=False)
 
 
 
@@ -60,13 +58,13 @@ model = keras.models.Sequential([
 
 model.compile(optimizer='adam',loss='mse',metrics=['mae'])
 
-history = model.fit(x_train_rate,y_train_rate,epochs=100,validation_split=0.2,batch_size=50)
+history = model.fit(x_train_rate,y_train_rate,epochs=100,validation_split=0.2,batch_size=50,)
 root_dir = os.path.join(os.curdir,"models/saved_models")
 def get_run_logdir():
     run_id =symbol+"-"+time.strftime("run_%Y_%m_%d-%H_%M_%S")
     return run_id
 #save model
-model.save(os.path.join(root_dir,get_run_logdir()))
+#model.save(os.path.join(root_dir,get_run_logdir()))
 
 def plot_learning_curves(history):
     plt.plot(history.history['loss'],label='loss',color='red')
