@@ -48,7 +48,8 @@ def trade():
             x = pd.DataFrame(x_scaled, columns=['open','high','low','tick_volume','spread','real_volume'])
             #predict
             prediction = model.predict(x)
-            prediction = round(prediction[0][0],5)
+            prediction = np.round_(prediction[0][0],5)[0].astype(float)
+            print(prediction)
             #get current price
             curr_price = mt5.symbol_info_tick(symbol).ask
             order_dic = check_order()

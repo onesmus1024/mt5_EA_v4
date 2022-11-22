@@ -3,9 +3,9 @@ import datetime
 import pytz
 Model_type = 'v4_CNN+GRU'
 symbol = "EURUSD"
-timeframe = mt5.TIMEFRAME_M15
-time_series = 15
+timeframe = mt5.TIMEFRAME_M1
+time_series = 5
 Debug = False
 
-timezone = pytz.timezone("Etc/UTC")
-utc_from = datetime.datetime(2020, 3, 1, tzinfo=timezone)
+timezone = pytz.utc
+utc_from = datetime.datetime(2022, 10, 1, tzinfo=timezone)

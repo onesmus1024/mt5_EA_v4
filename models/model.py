@@ -52,13 +52,13 @@ model = keras.models.Sequential([
     keras.layers.Conv1D(filters=20, kernel_size=4, strides=2, padding="valid",
     input_shape=[None, 1]),
     keras.layers.GRU(20, return_sequences=True),
-    keras.layers.GRU(20),
-    keras.layers.Dense(1),  
+    keras.layers.GRU(20,return_sequences=True),
+    keras.layers.TimeDistributed(keras.layers.Dense(1)) 
 ])
 
 model.compile(optimizer='adam',loss='mse',metrics=['mae'])
 
-history = model.fit(x_train_rate,y_train_rate,epochs=100,validation_split=0.2,batch_size=50,)
+history = model.fit(x_train_rate,y_train_rate,epochs=20,validation_split=0.2,batch_size=1)
 root_dir = os.path.join(os.curdir,"models/saved_models")
 def get_run_logdir():
     run_id =symbol+"-"+time.strftime("run_%Y_%m_%d-%H_%M_%S")
@@ -70,7 +70,7 @@ def plot_learning_curves(history):
     plt.plot(history.history['loss'],label='loss',color='red')
     plt.plot(history.history['val_loss'],label='val_loss',color='blue')
     plt.legend()
-    #plt.gca().set_ylim(0,0.001)
+    #plt.gca().set_ylim(0,0.00000001)
     plt.show()
     score = model.evaluate(x_test_rate,y_test_rates)
     print(score)
